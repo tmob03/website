@@ -1,7 +1,5 @@
 const express = require('express'),
-	config = require('./config/config'),
 	http = require('http'),
-	path = require('path'),
 	app = express();
 
 require('./config/express')(app, config);

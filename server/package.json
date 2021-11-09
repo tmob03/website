@@ -3,6 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
+    "dev2": "nodemon --exec npx ts-node ./server.ts",
+    "dev": "nodemon --exec \"ts-node\" config/swagger.ts",
     "start": "node server.js",
     "ts-build": "tsc",
     "test": "mocha --exit --timeout 45000"
@@ -48,5 +50,10 @@
   "devDependencies": {
     "faker": "^5.5.3",
     "ts-node": "^10.4.0"
+  },
+  "nodemonConfig": {
+    "ext": "js,ts",
+    "ignore": ["test/*", "docs/*"],
+    "delay": 2500
   }
 }
