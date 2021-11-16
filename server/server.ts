@@ -1,12 +1,19 @@
-const express = require('express'),
-	config = require('./config/config'),
-	http = require('http'),
-	path = require('path'),
-	app = express();
+import "reflect-metadata";
+import { startTypeORM } from "./config/typeorm";
+import * as http from "http"
+import * as express from "express";
+import { config } from "./config/config";
+
+const app = express();	
+let server: http.Server;
 
 require('./config/express')(app, config);
 
-const server = http.createServer(app);
-server.listen(config.port, '0.0.0.0');
+startTypeORM().then(() => {
 
-module.exports = server;
+	server = http.createServer(app);
+	server.listen(config.port, '0.0.0.0');
+});
+
+
+export default server;

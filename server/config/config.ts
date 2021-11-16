@@ -1,8 +1,10 @@
-const path = require('path'),
-    rootPath = path.normalize(__dirname + '/..'),
+import * as path from 'path';
+import { ConnectionOptions } from 'typeorm';
+
+const rootPath = path.normalize(__dirname + '/..'),
     env = process.env.NODE_ENV || 'development';
 
-const config = {
+const configs: IAllConfigs = {
 	test: {
 		root: rootPath,
 		baseURL: 'http://localhost:3002',
@@ -33,17 +35,17 @@ const config = {
 			preventLimited: true,
 		},
 		db: {
-			name: 'momentum_test',
-			userName: 'mom_test',
-			password: '',
-			host: 'localhost',
+			type: "mysql",
+			host: "localhost",
+			port: 3306,
+			username: "mom_test",
+			password: "",
+			database: "momentum_test",
+			synchronize: true,
 			logging: false,
-			pool: {
-				max: 15,
-				min: 0,
-				acquire: 15000,
-				idle: 500
-			}
+			entities: [
+				"src/entity/**/*.ts"
+			]			 
 		},
 		session: {
 			secret: 'keyboard cat',
@@ -79,17 +81,17 @@ const config = {
 			preventLimited: true,
 		},
 		db: {
-			name: 'momentum',
-			userName: 'mom',
-			password: '',
-			host: 'localhost',
-			logging: console.log,
-			pool: {
-				max: 10,
-				min: 0,
-				acquire: 30000,
-				idle: 10000
-			}
+			type: "mysql",
+			host: "localhost",
+			port: 3306,
+			username: "mom",
+			password: "",
+			database: "momentum",
+			synchronize: true,
+			logging: true,
+			entities: [
+				"src/entity/**/*.ts"
+			]
 		},
 		session: {
 			secret: 'keyboard cat',
@@ -102,7 +104,7 @@ const config = {
 		baseURL_Auth: process.env.AUTH_URL,
 		baseURL_CDN: process.env.CDN_URL,
 		domain: 'momentum-mod.org',
-		port: process.env.NODE_PORT,
+		port: +process.env.NODE_PORT,
 		accessToken: {
 			secret: process.env.JWT_SECRET,
 			expTime: '15m',
@@ -124,18 +126,19 @@ const config = {
 			webAPIKey: process.env.STEAM_WEB_API_KEY,
 			preventLimited: true,
 		},
-		db: {
-			name: 'momentum',
-			userName: process.env.MOM_DATABASE_USER,
-			password: process.env.MOM_DATABASE_PW,
+		db: 
+		{
+			type: "mysql",
 			host: process.env.MOM_DATABASE_HOST,
+			port: 3306,
+			username: process.env.MOM_DATABASE_USER,
+			password: process.env.MOM_DATABASE_PW,
+			database: "momentum",
+			synchronize: true,
 			logging: false,
-			pool: {
-				max: 10,
-				min: 0,
-				acquire: 30000,
-				idle: 10000
-			}
+			entities: [
+				"src/entity/**/*.ts"
+			]			 
 		},
 		session: {
 			secret: process.env.EXPRESS_SESSION_SECRET,
@@ -143,4 +146,46 @@ const config = {
 	}
 };
 
-module.exports = config[env];
+export interface IAllConfigs {
+	test: IConfig;
+	development: IConfig;
+	production: IConfig;
+}
+
+export interface IConfig {
+	root: string;
+		baseURL: string;
+		baseURL_API: string;
+		baseURL_Auth: string;
+
+		baseURL_CDN: string;
+		domain: string;
+		port: number
+		accessToken: {
+			secret: string;
+			expTime: string;
+			gameExpTime: string;
+		},
+		discord: {
+			clientID: string;
+			clientSecret: string;
+		};
+		twitch: {
+			clientID: string;
+			clientSecret: string;
+		};
+		twitter: {
+			consumerKey: string;
+			consumerSecret: string;
+		};
+		steam: {
+			webAPIKey: string;
+			preventLimited: boolean;
+		};
+		db: ConnectionOptions;
+		session: {
+			secret: string;
+		};
+}
+
+export const config: IConfig = configs[env];

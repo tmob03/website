@@ -36,10 +36,12 @@
     "passport-jwt": "4.0.0",
     "passport-steam": "1.0.14",
     "passport-twitter": "1.0.4",
+    "reflect-metadata": "^0.1.13",
     "sequelize": "6.2.2",
     "sharp": "0.25.4",
     "swagger-jsdoc": "4.0.0",
     "swagger-ui-express": "4.1.4",
+    "typeorm": "^0.2.40",
     "typescript": "^4.4.4",
     "xml2js": "0.4.23"
   },
