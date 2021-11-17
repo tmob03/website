@@ -20,3 +20,14 @@ services:
     build:
       context: ./server
       dockerfile: dev.Dockerfile
+
+  client:
+    platform: linux/x86_64
+    volumes:
+      - ./client:/app/client
+      - /app/client/node_modules/
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - 4200:4200
