@@ -1,6 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaRepo } from '../prisma/prisma.repo';
 import { User, Prisma, UserAuth, Activity, Profile, Follow, MapCredit, Run } from '@prisma/client';
+import { UserProfileDto, UserUpdateDto } from '../../@common/dto/user/user.dto';
+import { ProfileDto, ProfileUpdateDto } from '../../@common/dto/user/profile.dto';
 
 @Injectable()
 export class UsersRepo {
@@ -19,7 +21,7 @@ export class UsersRepo {
 
     /**
      * @summary Gets all from database
-     * @returns All users
+     * @returns All users\
      */
     async GetAll(where?: Prisma.UserWhereInput, skip?: number, take?: number): Promise<[User[], number]> {
         const count = await this.prisma.user.count({
@@ -37,9 +39,9 @@ export class UsersRepo {
      * @summary Gets single user from database
      * @returns Target user or null
      */
-    async Get(id: number): Promise<User> {
+    async Get(userID: number): Promise<User> {
         const where: Prisma.UserWhereUniqueInput = {};
-        where.id = +id;
+        where.id = +userID;
 
         return await this.prisma.user.findFirst({
             where: where
@@ -59,12 +61,34 @@ export class UsersRepo {
         });
     }
 
-    async Update(user: Prisma.UserAuthWhereUniqueInput, update: Prisma.UserUpdateInput): Promise<User> {
+    /**
+     * @summary Update a single user in database
+     * @returns Target user or null
+     */
+    async Update(userID: number, update: Prisma.UserUpdateInput): Promise<User> {
+        const where: Prisma.UserWhereUniqueInput = {};
+        where.id = +userID;
+
         return await this.prisma.user.update({
-            where: user,
+            where: where,
             data: update
         });
     }
+
+    /**
+     * @summary Deletes single user from database
+     * @returns Target user or null
+     * // TODO: does it?? what happens to entry after deletion?
+     */
+    async Delete(userID: number): Promise<User> {
+        const where: Prisma.UserWhereUniqueInput = {};
+        where.id = +userID;
+
+        return await this.prisma.user.delete({
+            where: where
+        });
+    }
+
     //#endregion
 
     //#region User Auth funcitons
@@ -82,34 +106,50 @@ export class UsersRepo {
 
     //#region Profile
     /**
-     * @summary Gets single users profile from database
+     * @summary Gets single users user and profile from database
      * @returns Target user or null
      */
-    async GetUserProfile(userID: number): Promise<[User, Profile]> {
+    async GetUserProfile(userID: number): Promise<UserProfileDto> {
         const where: Prisma.UserWhereUniqueInput = {};
         where.id = +userID;
 
-        const userProfile = await this.prisma.user.findFirst({
+        const userWithProfile = await this.prisma.user.findFirst({
             where: where,
             include: {
                 profiles: true
             }
         });
 
-        return [userProfile, (userProfile as any).profiles];
+        return new UserProfileDto(userWithProfile, (userWithProfile as any)?.profiles[0]);
     }
 
     /**
      * @summary Gets only single users profile from database
      * @returns Target user or null
      */
-    async GetProfileOnly(userID: number): Promise<Profile> {
+    async GetProfile(userID: number): Promise<Profile> {
         const where: Prisma.ProfileWhereInput = {};
         where.userID = +userID;
 
         return await this.prisma.profile.findFirst({
             where: where
         });
+    }
+
+    async UpdateProfile(profileID: number, update: ProfileUpdateDto): Promise<Profile> {
+        const where: Prisma.ProfileWhereUniqueInput = {};
+        where.id = +profileID;
+
+        const data: Prisma.ProfileUpdateInput = {};
+        for (const key in update) data[key] = update[key];
+
+        const ret = await this.prisma.profile.update({
+            where: where,
+            data: update
+        });
+
+        console.log('updateprofile result: ', ret);
+        return ret;
     }
 
     //#endregion

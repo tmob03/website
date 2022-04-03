@@ -3,7 +3,7 @@ import { HealthCheck, HealthCheckResult, HealthCheckService, HttpHealthIndicator
 import { PrometheusService } from '../prometheus/prometheus.service';
 import { HealthIndicator } from '../../@common/health/interface/health-indicator.interface';
 import { ApiHealthIndicator } from '../../@common/health/indicators/api-health.indicator';
-import { appConfig } from 'config/config';
+import { appConfig } from '../../../config/config';
 
 @Injectable()
 export class HealthService {

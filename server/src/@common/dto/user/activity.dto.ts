@@ -1,6 +1,6 @@
 import { Activity } from '@prisma/client';
 import { EActivityTypes } from '../../enums/activity.enum';
-import { UserProfileDto } from './profile.dto';
+import { UserProfileDto } from './user.dto';
 
 export class ActivityDto {
     id: number;

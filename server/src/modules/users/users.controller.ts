@@ -4,21 +4,20 @@ import { Public } from '../auth/public.decorator';
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 import { UsersService } from './users.service';
 import { UserDto } from '../../@common/dto/user/user.dto';
-import { UserProfileDto } from '../../@common/dto/user/profile.dto';
 import { PagedResponseDto } from '../../@common/dto/common/api-response.dto';
 import { ActivityDto } from '../../@common/dto/user/activity.dto';
 import { UserRunDto } from '../../@common/dto/run/runs.dto';
 import { UserMapCreditDto } from '../../@common/dto/map/mapCredit.dto';
 import { FollowerDto } from '../../@common/dto/user/followers.dto';
+import { ProfileDto } from '../../@common/dto/user/profile.dto';
 
 @ApiBearerAuth()
-@Controller('api/v1/users')
+@Controller('/api/v1/users')
 @ApiTags('Users')
 @UseGuards(JwtAuthGuard)
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
-    @Public()
     @Get()
     @ApiOperation({ summary: 'Returns all users' })
     @ApiQuery({
@@ -60,7 +59,7 @@ export class UsersController {
         description: 'Target User ID',
         required: true
     })
-    public async GetUserProfile(@Param('userID') userID: number): Promise<UserProfileDto> {
+    public async GetProfile(@Param('userID') userID: number): Promise<ProfileDto> {
         return this.usersService.GetProfile(userID);
     }
 

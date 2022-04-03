@@ -3,7 +3,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { PrismaRepo } from './modules/prisma/prisma.repo';
 import { AppModule } from './app.module';
 import { appConfig } from '../config/config';
-import { NestApplicationOptions } from '@nestjs/common';
+import { NestApplicationOptions, ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from './@common/filters/all-exceptions.filter';
 
 async function bootstrap() {
@@ -22,7 +22,7 @@ async function bootstrap() {
 
     const config = new DocumentBuilder()
         .setTitle('Momentum Mod API')
-        .setDescription('The Momentum Mod API - Made with 💖')
+        .setDescription('The Momentum Mod API - Made with 🦵')
         .addBearerAuth()
         .setVersion('1.0')
         .build();
@@ -30,7 +30,10 @@ async function bootstrap() {
     SwaggerModule.setup('api-docs', app, document);
 
     const prismaDalc: PrismaRepo = app.get(PrismaRepo);
-    prismaDalc.enableShutdownHooks(app);
+    await prismaDalc.enableShutdownHooks(app);
+
+    app.useGlobalPipes(new ValidationPipe());
+
     const httpAdapterHost = app.get(HttpAdapterHost);
     app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));
 
