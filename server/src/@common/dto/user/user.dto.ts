@@ -3,6 +3,7 @@ import { appConfig } from '../../../../config/config';
 import { ERole, EBan } from '../../enums/user.enum';
 import { ApiProperty, OmitType, PartialType, PickType } from '@nestjs/swagger';
 import { IsBoolean, IsDate, IsEnum, IsInt, IsISO31661Alpha2, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
 import { IsSteamCommunityID } from '../../validators/is-steam-id.validator';
 import { ProfileDto } from './profile.dto';
 
@@ -97,3 +98,14 @@ export class UserProfileDto extends UserDto {
 // export class UpdateUserAdminDto extends PartialType(UserProfileDto) {}
 
 export class UserUpdateDto extends PartialType(UserProfileDto) {}
+
+// TODO_POST_REWRITE: Change this to PagedResponseDTO, needs frontend and game changes.
+export class UsersDto {
+    @ApiProperty()
+    @IsInt()
+    count: number;
+
+    @ApiProperty()
+    @Type(() => UserDto)
+    users: UserDto[];
+}

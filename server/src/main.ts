@@ -32,10 +32,11 @@ async function bootstrap() {
     const prismaDalc: PrismaRepo = app.get(PrismaRepo);
     await prismaDalc.enableShutdownHooks(app);
 
-    app.useGlobalPipes(new ValidationPipe());
+    app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
-    const httpAdapterHost = app.get(HttpAdapterHost);
-    app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));
+    // Disabling this for now, not sure it's needed and might be causing errors trying to modify a response that's been sent or something
+    // const httpAdapterHost = app.get(HttpAdapterHost);
+    // app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));
 
     await app.listen(appConfig.port);
 }

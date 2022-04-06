@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { Map as MapDB, MapRank, Prisma, Profile, User, UserAuth } from '@prisma/client';
-import { UserUpdateDto, UserDto, UserProfileDto } from '../../@common/dto/user/user.dto';
+import { UserUpdateDto, UserDto, UserProfileDto, UsersDto } from '../../@common/dto/user/user.dto';
 import { ProfileDto, ProfileUpdateDto } from '../../@common/dto/user/profile.dto';
 import { PagedResponseDto } from '../../@common/dto/common/api-response.dto';
 import { UsersRepo } from './users.repo';
@@ -14,24 +14,57 @@ import { MapRankDto } from '../../@common/dto/map/mapRank.dto';
 import { UserRunDto } from '../../@common/dto/run/runs.dto';
 import { UserMapCreditDto } from '../../@common/dto/map/mapCredit.dto';
 import { EBan } from '../../@common/enums/user.enum';
+import { GetAllUsersQuery } from '../../@common/dto/user/get-all-query.dto';
 
 @Injectable()
 export class UsersService {
     constructor(private readonly userRepo: UsersRepo, private readonly http: HttpService) {}
 
     //#region GETs
-    public async GetAll(skip?: number, take?: number): Promise<PagedResponseDto<UserDto[]>> {
-        const dbResponse = await this.userRepo.GetAll(undefined, skip, take);
+    public async GetAll(query: GetAllUsersQuery): Promise<UsersDto> {
+        const where: Prisma.UserWhereInput = {};
+
+        // Default to 20
+        let limit = query.limit ?? 20;
+
+        if (query.playerID) {
+            limit = 1;
+            where.steamID = query.playerID;
+        } else if (query.playerIDs) {
+            where.steamID = { in: query.playerIDs.split(',') };
+        }
+
+        if (query.search) {
+            where.alias = { startsWith: query.search };
+        }
+
+        // if how to do this, aren't we returning a whole different thing (a userprofiledto)
+        // could maybe reroute in controller to getuserprofile (bad)
+        // idk
+
+        // TODO first thing: less stupid way of doing this
+        let include: Prisma.UserInclude = {};
+        if (query.expand) {
+            const expansions = query.expand.split(',');
+            include.profiles = expansions.includes('profile');
+            include.userstats = expansions.includes('userStats');
+        } else include = undefined;
+
+        const dbResponse = await this.userRepo.GetAll(where, include, query.offset, limit);
 
         const totalCount = dbResponse[1];
         const users = dbResponse[0];
 
         const userDtos = users.map((user: User) => new UserDto(user));
 
+        console.log(userDtos);
+
         return {
-            totalCount: totalCount,
-            returnCount: userDtos.length,
-            response: userDtos
+            // totalCount: totalCount,
+            // returnCount: userDtos.length,
+            // response: userDtos
+            count: totalCount,
+            users: userDtos
         };
     }
 

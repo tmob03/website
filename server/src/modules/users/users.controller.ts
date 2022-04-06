@@ -1,15 +1,15 @@
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags, ApiParam } from '@nestjs/swagger';
-import { Public } from '../auth/public.decorator';
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 import { UsersService } from './users.service';
-import { UserDto } from '../../@common/dto/user/user.dto';
+import { UserDto, UsersDto } from '../../@common/dto/user/user.dto';
 import { PagedResponseDto } from '../../@common/dto/common/api-response.dto';
 import { ActivityDto } from '../../@common/dto/user/activity.dto';
 import { UserRunDto } from '../../@common/dto/run/runs.dto';
 import { UserMapCreditDto } from '../../@common/dto/map/mapCredit.dto';
 import { FollowerDto } from '../../@common/dto/user/followers.dto';
 import { ProfileDto } from '../../@common/dto/user/profile.dto';
+import { GetAllUsersQuery } from '../../@common/dto/user/get-all-query.dto';
 
 @ApiBearerAuth()
 @Controller('/api/v1/users')
@@ -21,22 +21,50 @@ export class UsersController {
     @Get()
     @ApiOperation({ summary: 'Returns all users' })
     @ApiQuery({
-        name: 'skip',
+        name: 'offset',
         type: Number,
         description: 'Offset this many records',
         required: false
     })
     @ApiQuery({
-        name: 'take',
+        name: 'limit',
         type: Number,
-        description: 'Take this many records',
+        description: 'Limit this many records',
         required: false
     })
-    public async GetAllUsers(
-        @Query('skip') skip?: number,
-        @Query('take') take?: number
-    ): Promise<PagedResponseDto<UserDto[]>> {
-        return this.usersService.GetAll(skip, take);
+    @ApiQuery({
+        name: 'expand',
+        type: String,
+        description: 'Expand query to include profile or userStats',
+        required: false
+    })
+    @ApiQuery({
+        name: 'search',
+        type: String,
+        description: 'Search by alias',
+        required: false
+    })
+    @ApiQuery({
+        name: 'playerID',
+        type: String,
+        description: 'Get by Steam ID',
+        required: false
+    })
+    @ApiQuery({
+        name: 'playerIDs',
+        type: Number,
+        description: 'Get by multiple comma-separated Steam IDs',
+        required: false
+    })
+    @ApiQuery({
+        name: 'mapRank',
+        type: Number,
+        description: 'Get by map rank',
+        required: false
+    })
+    public async GetAllUsers(@Query() query: GetAllUsersQuery): Promise<UsersDto> {
+        // We use 'skip' & 'take' internally but expose it as 'offset' and 'limit' to preserve compat w/ old API
+        return this.usersService.GetAll(query);
     }
 
     @Get(':userID')

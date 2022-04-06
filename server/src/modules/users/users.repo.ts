@@ -21,17 +21,27 @@ export class UsersRepo {
 
     /**
      * @summary Gets all from database
-     * @returns All users\
+     * @returns All users
      */
-    async GetAll(where?: Prisma.UserWhereInput, skip?: number, take?: number): Promise<[User[], number]> {
+    async GetAll(
+        where: Prisma.UserWhereInput,
+        include: Prisma.UserInclude,
+        skip?: number,
+        take?: number
+    ): Promise<[User[], number]> {
         const count = await this.prisma.user.count({
-            where: where
+            where: where,
+            skip: skip,
+            take: take
         });
+
         const users = await this.prisma.user.findMany({
             where: where,
-            skip: skip != null ? +skip : undefined,
-            take: take != null ? +take : undefined
+            include: include,
+            skip: skip,
+            take: take
         });
+
         return [users, count];
     }
 
